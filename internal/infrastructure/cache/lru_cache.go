@@ -19,7 +19,7 @@ type LRUCache struct {
 func NewLRUCache(size int, ttl time.Duration) (*LRUCache, error) {
 	cache, err := lru.New[string, *entities.CacheItem](size)
 	if err != nil {
-		return nil, fmt.Errorf("no se pudo crear el caché LRU: %w", err)
+		return nil, fmt.Errorf("no se pudo crear el cache LRU: %w", err)
 	}
 
 	lruCache := &LRUCache{

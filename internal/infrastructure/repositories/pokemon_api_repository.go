@@ -69,10 +69,10 @@ func (r *PokemonAPIRepository) GetList(ctx context.Context, limit, offset int) (
 }
 
 func (r *PokemonAPIRepository) SearchByTitle(ctx context.Context, title string, limit, offset int) ([]*entities.Pokemon, error) {
-	// Estrategia optimizada: usar caché inteligente + búsqueda incremental
+	// Cache inteligente && busqueda incremental
 	searchTerm := strings.ToLower(title)
 
-	// 1. Intentar con lista pequeña primero (más común)
+	// Validar lista pequeña
 	initialLimit := 100
 	pokemonList, err := r.GetList(ctx, initialLimit, 0)
 	if err != nil {
@@ -82,16 +82,16 @@ func (r *PokemonAPIRepository) SearchByTitle(ctx context.Context, title string, 
 	var results []*entities.Pokemon
 	var candidates []string
 
-	// 2. Filtrar candidatos por nombre
+	// Filtrar candidatos por nombre
 	for _, pokemonResult := range pokemonList.Results {
 		if strings.Contains(strings.ToLower(pokemonResult.Name), searchTerm) {
 			candidates = append(candidates, pokemonResult.Name)
 		}
 	}
 
-	// 3. Si no hay suficientes resultados, expandir búsqueda
+	// Si no hay suficientes resultados, expandir busqueda
 	if len(candidates) < limit+offset && pokemonList.Count > initialLimit {
-		// Expandir a 500 máximo (balance entre eficiencia y cobertura)
+		// balance entre eficiencia y cobertura
 		expandedList, err := r.GetList(ctx, 500, 0)
 		if err == nil {
 			candidates = candidates[:0] // Reset
@@ -103,7 +103,7 @@ func (r *PokemonAPIRepository) SearchByTitle(ctx context.Context, title string, 
 		}
 	}
 
-	// 4. Aplicar paginación a candidatos
+	// Aplicar paginación a candidatos
 	start := offset
 	end := offset + limit
 	if start >= len(candidates) {
@@ -113,7 +113,7 @@ func (r *PokemonAPIRepository) SearchByTitle(ctx context.Context, title string, 
 		end = len(candidates)
 	}
 
-	// 5. Obtener detalles solo de los Pokemon necesarios
+	// Obtener detalles solo de los Pokemon necesarios
 	for i := start; i < end; i++ {
 		pokemon, err := r.GetByName(ctx, candidates[i])
 		if err != nil {

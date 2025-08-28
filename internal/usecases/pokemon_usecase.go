@@ -23,95 +23,95 @@ func NewPokemonUseCase(pokemonRepo repositories.PokemonRepository, cacheService 
 	}
 }
 
-// GetPokemonByID obtiene un Pokemon por ID con caché
+// GetPokemonByID obtiene un Pokemon por ID con cache
 func (uc *PokemonUseCase) GetPokemonByID(ctx context.Context, id int) (*entities.Pokemon, error) {
 	cacheKey := fmt.Sprintf("pokemon:id:%d", id)
 
-	// Intentar obtener del caché primero
+	// Intentar obtener del cache primero
 	if cachedData, found := uc.cacheService.Get(ctx, cacheKey); found {
 		if pokemon, ok := cachedData.(*entities.Pokemon); ok {
 			return pokemon, nil
 		}
 	}
 
-	// Si no está en caché, obtener del repositorio
+	// Si no esta en cache, obtener del repositorio
 	pokemon, err := uc.pokemonRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get pokemon by id %d: %w", id, err)
+		return nil, fmt.Errorf("no se pudo obtener pokemon por ID: %d: %w", id, err)
 	}
 
-	// Guardar en caché
+	// Guardar en cache
 	if err := uc.cacheService.Set(ctx, cacheKey, pokemon); err != nil {
-		// Log error but don't fail the request
-		fmt.Printf("Failed to cache pokemon %d: %v\n", id, err)
+		// Registrar error pero no fallar en la solicitud
+		fmt.Printf("no se pudo almacenar en cache el pokemon: %d: %v\n", id, err)
 	}
 
 	return pokemon, nil
 }
 
-// GetPokemonByName obtiene un Pokemon por nombre con caché
+// GetPokemonByName obtiene un Pokemon por nombre con cache
 func (uc *PokemonUseCase) GetPokemonByName(ctx context.Context, name string) (*entities.Pokemon, error) {
 	cacheKey := fmt.Sprintf("pokemon:name:%s", strings.ToLower(name))
 
-	// Intentar obtener del caché primero
+	// Intentar obtener del cache primero
 	if cachedData, found := uc.cacheService.Get(ctx, cacheKey); found {
 		if pokemon, ok := cachedData.(*entities.Pokemon); ok {
 			return pokemon, nil
 		}
 	}
 
-	// Si no está en caché, obtener del repositorio
+	// Si no esta en cache, obtener del repositorio
 	pokemon, err := uc.pokemonRepo.GetByName(ctx, name)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get pokemon by name %s: %w", name, err)
+		return nil, fmt.Errorf("no pude obtener el pokemon por su nombre: %s: %w", name, err)
 	}
 
-	// Guardar en caché
+	// Guardar en cache
 	if err := uc.cacheService.Set(ctx, cacheKey, pokemon); err != nil {
-		fmt.Printf("Failed to cache pokemon %s: %v\n", name, err)
+		fmt.Printf("no se pudo almacenar en cache el pokemon: %s: %v\n", name, err)
 	}
 
 	return pokemon, nil
 }
 
-// GetPokemonList obtiene una lista paginada de Pokemon con caché
+// GetPokemonList obtiene una lista paginada de Pokemon con cache
 func (uc *PokemonUseCase) GetPokemonList(ctx context.Context, limit, offset int) (*entities.PokemonList, error) {
 	cacheKey := fmt.Sprintf("pokemon:list:%d:%d", limit, offset)
 
-	// Intentar obtener del caché primero
+	// Intentar obtener del cache primero
 	if cachedData, found := uc.cacheService.Get(ctx, cacheKey); found {
 		if pokemonList, ok := cachedData.(*entities.PokemonList); ok {
 			return pokemonList, nil
 		}
 	}
 
-	// Si no está en caché, obtener del repositorio
+	// Si no esta en cache, obtener del repositorio
 	pokemonList, err := uc.pokemonRepo.GetList(ctx, limit, offset)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get pokemon list: %w", err)
+		return nil, fmt.Errorf("no se pudo obtener la lista de pokemon: %w", err)
 	}
 
-	// Guardar en caché
+	// Guardar en cache
 	if err := uc.cacheService.Set(ctx, cacheKey, pokemonList); err != nil {
-		fmt.Printf("Failed to cache pokemon list: %v\n", err)
+		fmt.Printf("no se pudo almacenar en cache el pokemon list: %v\n", err)
 	}
 
 	return pokemonList, nil
 }
 
-// SearchPokemonByTitle busca Pokemon por título/nombre con caché
+// SearchPokemonByTitle busca Pokemon por titulo/nombre con cache
 func (uc *PokemonUseCase) SearchPokemonByTitle(ctx context.Context, title string, limit, offset int) ([]*entities.Pokemon, error) {
 	searchTerm := strings.ToLower(title)
 	cacheKey := fmt.Sprintf("pokemon:search:%s:%d:%d", searchTerm, limit, offset)
 
-	// Intentar obtener del caché primero
+	// Intentar obtener del cache primero
 	if cachedData, found := uc.cacheService.Get(ctx, cacheKey); found {
 		if pokemonList, ok := cachedData.([]*entities.Pokemon); ok {
 			return pokemonList, nil
 		}
 	}
 
-	// Caché adicional para candidatos de búsqueda (evita re-filtrar)
+	// Cache adicional para candidatos de busqueda (evita re-filtrar)
 	candidatesCacheKey := fmt.Sprintf("pokemon:search_candidates:%s", searchTerm)
 	var candidates []string
 
@@ -121,16 +121,16 @@ func (uc *PokemonUseCase) SearchPokemonByTitle(ctx context.Context, title string
 		}
 	}
 
-	// Si no hay candidatos en caché, buscar
+	// Si no hay candidatos en cache, buscar
 	if len(candidates) == 0 {
 		pokemonList, err := uc.pokemonRepo.SearchByTitle(ctx, title, limit, offset)
 		if err != nil {
-			return nil, fmt.Errorf("failed to search pokemon by title %s: %w", title, err)
+			return nil, fmt.Errorf("no se pudo buscar Pokémon por titulo: %s: %w", title, err)
 		}
 
 		// Cachear resultado final
 		if err := uc.cacheService.Set(ctx, cacheKey, pokemonList); err != nil {
-			fmt.Printf("Failed to cache pokemon search: %v\n", err)
+			fmt.Printf("no se pudo almacenar en cache el pokemon search: %v\n", err)
 		}
 
 		return pokemonList, nil
@@ -148,7 +148,7 @@ func (uc *PokemonUseCase) SearchPokemonByTitle(ctx context.Context, title string
 	}
 
 	for i := start; i < end; i++ {
-		pokemon, err := uc.GetPokemonByName(ctx, candidates[i]) // Usa caché individual
+		pokemon, err := uc.GetPokemonByName(ctx, candidates[i]) // Usa cache individual
 		if err != nil {
 			continue
 		}
@@ -157,7 +157,7 @@ func (uc *PokemonUseCase) SearchPokemonByTitle(ctx context.Context, title string
 
 	// Cachear resultado paginado
 	if err := uc.cacheService.Set(ctx, cacheKey, results); err != nil {
-		fmt.Printf("Failed to cache pokemon search: %v\n", err)
+		fmt.Printf("no se pudo almacenar en cache el pokemon search: %v\n", err)
 	}
 
 	return results, nil

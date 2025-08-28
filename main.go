@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	// Configuración
+	// Configuracion
 	const (
 		serverPort = ":8080"
 		pokeAPIURL = "https://pokeapi.co/api/v2"
@@ -22,10 +22,10 @@ func main() {
 		cacheTTL   = 15 * time.Minute
 	)
 
-	// Inicializar caché LRU
+	// Inicializar cache LRU
 	cacheService, err := cache.NewLRUCache(cacheSize, cacheTTL)
 	if err != nil {
-		log.Fatalf("Failed to initialize cache: %v", err)
+		log.Fatalf("no se pudo inicializar la cache: %v", err)
 	}
 
 	// Inicializar repositorio
@@ -47,8 +47,7 @@ func main() {
 	// Configurar rutas
 	routes.SetupRoutes(r, pokemonHandler)
 
-	log.Printf("🚀 Pokemon Backend Server starting on port %s", serverPort)
-	log.Printf("📋 Available endpoints:")
+	log.Printf("Hortifrut Backend port %s", serverPort)
 	log.Printf("   GET /health")
 	log.Printf("   GET /api/v1/pokemon?limit=20&offset=0")
 	log.Printf("   GET /api/v1/pokemon/:id")
@@ -56,6 +55,6 @@ func main() {
 	log.Printf("   GET /api/v1/pokemon/search?q=pika&limit=10&offset=0")
 
 	if err := r.Run(serverPort); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		log.Fatalf("no se pudo iniciar el servidor: %v", err)
 	}
 }

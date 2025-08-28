@@ -41,13 +41,13 @@ type PokemonResult struct {
 	URL  string `json:"url"`
 }
 
-// Elemento en caché con TTL
+// Elemento en cache con TTL
 type CacheItem struct {
 	Data      interface{}
 	ExpiresAt time.Time
 }
 
-// Verifica si el item del caché ha expirado
+// Verifica si el item del cache ha expirado
 func (c *CacheItem) IsExpired() bool {
 	return time.Now().After(c.ExpiresAt)
 }

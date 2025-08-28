@@ -25,7 +25,7 @@ func CORS() gin.HandlerFunc {
 	})
 }
 
-// Logger middleware personalizado
+// Logger middleware
 func Logger() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
@@ -42,7 +42,7 @@ func Logger() gin.HandlerFunc {
 	})
 }
 
-// ErrorHandler middleware para manejo centralizado de errores
+// Manejo centralizado de errores
 func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()

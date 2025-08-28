@@ -18,13 +18,13 @@ func NewPokemonHandler(pokemonUseCase *usecases.PokemonUseCase) *PokemonHandler 
 	}
 }
 
-// GetPokemonByID maneja GET /pokemon/:id
+// GET /pokemon/:id
 func (h *PokemonHandler) GetPokemonByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid pokemon ID",
+			"error": "ID de Pokemon no válido",
 		})
 		return
 	}
@@ -33,29 +33,29 @@ func (h *PokemonHandler) GetPokemonByID(c *gin.Context) {
 	if err != nil {
 		if err.Error() == "pokemon not found" {
 			c.JSON(http.StatusNotFound, gin.H{
-				"error": "Pokemon not found",
+				"error": "Pokemon no encontrado",
 			})
 			return
 		}
 
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to get pokemon",
+			"error": "No se pudo obtener el Pokemon",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":   pokemon,
-		"cached": false, // Podrías implementar un flag para indicar si vino del caché
+		"cached": false,
 	})
 }
 
-// GetPokemonByName maneja GET /pokemon/name/:name
+// GET /pokemon/name/:name
 func (h *PokemonHandler) GetPokemonByName(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Pokemon name is required",
+			"error": "El nombre del Pokemon es obligatorio",
 		})
 		return
 	}
@@ -64,13 +64,13 @@ func (h *PokemonHandler) GetPokemonByName(c *gin.Context) {
 	if err != nil {
 		if err.Error() == "pokemon not found" {
 			c.JSON(http.StatusNotFound, gin.H{
-				"error": "Pokemon not found",
+				"error": "Pokemon no encontrado",
 			})
 			return
 		}
 
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to get pokemon",
+			"error": "No se pudo obtener el Pokemon",
 		})
 		return
 	}
@@ -80,7 +80,7 @@ func (h *PokemonHandler) GetPokemonByName(c *gin.Context) {
 	})
 }
 
-// GetPokemonList maneja GET /pokemon con paginación
+// GET /pokemon
 func (h *PokemonHandler) GetPokemonList(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
@@ -98,7 +98,7 @@ func (h *PokemonHandler) GetPokemonList(c *gin.Context) {
 	pokemonList, err := h.pokemonUseCase.GetPokemonList(c.Request.Context(), limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to get pokemon list",
+			"error": "No se pudo obtener la lista de Pokemon",
 		})
 		return
 	}
@@ -112,7 +112,7 @@ func (h *PokemonHandler) GetPokemonList(c *gin.Context) {
 	})
 }
 
-// SearchPokemonByTitle maneja GET /pokemon/search con paginación
+// GET /pokemon/search con paginación
 func (h *PokemonHandler) SearchPokemonByTitle(c *gin.Context) {
 	title := c.Query("q")
 	if title == "" {
@@ -138,7 +138,7 @@ func (h *PokemonHandler) SearchPokemonByTitle(c *gin.Context) {
 	pokemonList, err := h.pokemonUseCase.SearchPokemonByTitle(c.Request.Context(), title, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to search pokemon",
+			"error": "No se pudo buscar Pokemon",
 		})
 		return
 	}

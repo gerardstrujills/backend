@@ -16,7 +16,7 @@ func SetupRoutes(r *gin.Engine, pokemonHandler *handlers.PokemonHandler) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":  "ok",
-			"service": "pokemon-backend",
+			"service": "hortifrut-backend",
 		})
 	})
 
